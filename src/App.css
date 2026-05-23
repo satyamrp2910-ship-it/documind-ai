@@ -1,38 +1,219 @@
-.App {
-  text-align: center;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+body {
+  background: #0d0d14;
+  color: #f0eeff;
+  font-family: 'Segoe UI', sans-serif;
   min-height: 100vh;
+}
+
+.header {
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  font-family: monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: #8884aa;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: calc(100vh - 70px);
+}
+
+.left-panel {
+  padding: 1.5rem;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.right-panel {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #8884aa;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.lang-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lang-tab {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #8884aa;
+  transition: all 0.15s;
+}
+
+.lang-tab:hover { color: #f0eeff; }
+.lang-tab.active {
+  background: rgba(124,111,247,0.2);
+  border-color: #7c6ff7;
+  color: #a78bfa;
+}
+
+.code-input {
+  flex: 1;
+  background: #13131a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #f0eeff;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  min-height: 250px;
+}
+
+.code-input:focus { border-color: #7c6ff7; }
+.code-input::placeholder { color: #8884aa; }
+
+.generate-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #7c6ff7, #9f7aea);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+}
+
+.generate-btn:hover { opacity: 0.85; }
+.generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.empty-state {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  color: #8884aa;
+  text-align: center;
+  gap: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.empty-icon { font-size: 2.5rem; }
+.empty-title { font-size: 0.95rem; color: #f0eeff; }
+.empty-sub { font-size: 0.8rem; max-width: 220px; line-height: 1.6; }
+
+.doc-card {
+  background: #13131a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.doc-card-header {
+  padding: 10px 14px;
+  background: #1c1c28;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.doc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #7c6ff7;
+}
+
+.doc-card-title {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: #a78bfa;
+  letter-spacing: 0.08em;
+}
+
+.doc-card-body {
+  padding: 14px;
+  font-size: 0.83rem;
+  line-height: 1.8;
+  color: #f0eeff;
+  white-space: pre-wrap;
+}
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 9px;
+  background: #13131a;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #8884aa;
+  font-family: monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.action-btn:hover {
+  color: #f0eeff;
+  border-color: #7c6ff7;
+}
+
+.error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.82rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
