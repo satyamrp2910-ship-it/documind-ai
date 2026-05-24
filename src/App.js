@@ -17,38 +17,44 @@ function App() {
     setDocs([]);
 
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_OPENROUTER_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-flash-1.5',
-          messages: [{
-            role: 'user',
-            content: `You are a technical documentation expert. Analyze this ${lang} code and generate clear documentation.
+      const prompt = `Analyze this ${lang} code and return ONLY a JSON array with 3 objects. No extra text.
 
 CODE:
 ${code}
 
-Return a JSON array only (no extra text) with objects having "title" and "content":
-[{"title": "Overview", "content": "..."},
- {"title": "Functions & Methods", "content": "..."},
- {"title": "Parameters & Returns", "content": "..."},
- {"title": "Usage Examples", "content": "..."},
- {"title": "Edge Cases", "content": "..."}]`
-          }]
+Return exactly this format:
+[
+  {"title": "Overview", "content": "What this code does in 2-3 sentences"},
+  {"title": "Functions", "content": "List each function name and what it does"},
+  {"title": "Usage Example", "content": "Show a simple example of how to use this code"}
+]`;
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            { role: 'system', content: 'You are a documentation expert. Always respond with valid JSON array only. No markdown. No extra text.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.1,
+          max_tokens: 1024
         })
       });
 
       const data = await response.json();
       const text = data.choices[0].message.content;
-      const cleaned = text.replace(/```json|```/g, '').trim();
-      const sections = JSON.parse(cleaned);
+      const match = text.match(/\[[\s\S]*\]/);
+      if (!match) throw new Error('No valid JSON in response');
+      const sections = JSON.parse(match[0]);
       setDocs(sections);
+
     } catch (err) {
-      setError('Something went wrong. Check your API key in .env file.');
+      setError('Something went wrong: ' + err.message);
     }
 
     setLoading(false);
@@ -85,21 +91,31 @@ Return a JSON array only (no extra text) with objects having "title" and "conten
             <div className="label">Language</div>
             <div className="lang-tabs">
               {LANGUAGES.map(l => (
-                <button key={l} className={`lang-tab ${lang === l ? 'active' : ''}`}
-                  onClick={() => setLang(l)}>{l}</button>
+                <button
+                  key={l}
+                  className={`lang-tab ${lang === l ? 'active' : ''}`}
+                  onClick={() => setLang(l)}
+                >
+                  {l}
+                </button>
               ))}
             </div>
           </div>
 
-          <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="label">Paste your code</div>
-            <textarea className="code-input" value={code}
+            <textarea
+              className="code-input"
+              value={code}
               onChange={e => setCode(e.target.value)}
-              placeholder="Paste your functions, classes, or APIs here..." />
+              placeholder="Paste your functions, classes, or APIs here..."
+            />
           </div>
 
           <button className="generate-btn" onClick={generateDocs} disabled={loading}>
-            {loading ? <><span className="spinner"></span>GENERATING...</> : 'GENERATE DOCUMENTATION →'}
+            {loading
+              ? <><span className="spinner"></span>GENERATING...</>
+              : 'GENERATE DOCUMENTATION →'}
           </button>
         </div>
 
