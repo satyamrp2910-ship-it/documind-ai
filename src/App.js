@@ -17,16 +17,18 @@ function App() {
     setDocs([]);
 
     try {
-      const prompt = `Analyze this ${lang} code and return ONLY a JSON array with 3 objects. No extra text.
+      const prompt = `You are a technical documentation expert. Analyze this ${lang} code carefully and generate comprehensive documentation.
 
 CODE:
 ${code}
 
-Return exactly this format:
+Return ONLY a JSON array with exactly these 5 objects, no extra text:
 [
-  {"title": "Overview", "content": "What this code does in 2-3 sentences"},
-  {"title": "Functions", "content": "List each function name and what it does"},
-  {"title": "Usage Example", "content": "Show a simple example of how to use this code"}
+  {"title": "Overview", "content": "Explain what this code does, its purpose and main functionality in 3-4 sentences"},
+  {"title": "Functions & Methods", "content": "List every function/method with its name and what it does"},
+  {"title": "Parameters & Returns", "content": "For each function list its parameters, their types, and what it returns"},
+  {"title": "Usage Examples", "content": "Show 2-3 real practical examples of how to use this code"},
+  {"title": "Edge Cases & Errors", "content": "List potential errors, edge cases and how to handle them"}
 ]`;
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -38,11 +40,17 @@ Return exactly this format:
         body: JSON.stringify({
           model: 'llama-3.1-8b-instant',
           messages: [
-            { role: 'system', content: 'You are a documentation expert. Always respond with valid JSON array only. No markdown. No extra text.' },
-            { role: 'user', content: prompt }
+            {
+              role: 'system',
+              content: 'You are a documentation expert. Always respond with valid JSON array only. No markdown. No extra text.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
           ],
           temperature: 0.1,
-          max_tokens: 1024
+          max_tokens: 2048
         })
       });
 
