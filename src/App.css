@@ -170,9 +170,8 @@ body {
   line-height: 1.8;
   color: #f0eeff;
   white-space: pre-wrap;
-  max-height: 120px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+  max-height: 150px;
+  overflow-y: scroll;
 }
 
 .doc-card-body.expanded {

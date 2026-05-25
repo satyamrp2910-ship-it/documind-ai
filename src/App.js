@@ -30,6 +30,7 @@ function App() {
   const [error, setError] = useState('');
 
   const generateDocs = async () => {
+    console.log('KEY:', process.env.REACT_APP_GROQ_KEY);
     if (!code.trim()) { alert('Please paste some code first!'); return; }
     setLoading(true);
     setError('');
