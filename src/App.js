@@ -70,7 +70,7 @@ Return ONLY a JSON array with exactly these 5 objects, no extra text:
             }
           ],
           temperature: 0.1,
-          max_tokens: 2048
+          max_tokens: 4096
         })
       });
 
