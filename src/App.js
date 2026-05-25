@@ -5,7 +5,6 @@ const LANGUAGES = ['Python', 'JavaScript', 'TypeScript', 'Java', 'Go', 'SQL'];
 
 function DocCard({ title, content }) {
   const [expanded, setExpanded] = useState(false);
-
   return (
     <div className="doc-card">
       <div className="doc-card-header">
@@ -39,8 +38,7 @@ function App() {
     setError('');
     setDocs([]);
 
-    try {
-      const prompt = `You are a technical documentation expert. Analyze this ${lang} code carefully and generate comprehensive documentation.
+    const prompt = `You are a technical documentation expert. Analyze this ${lang} code carefully and generate comprehensive documentation.
 
 CODE:
 ${code}
@@ -54,11 +52,20 @@ Return ONLY a JSON array with exactly these 5 objects, no extra text:
   {"title": "Edge Cases & Errors", "content": "List potential errors, edge cases and how to handle them"}
 ]`;
 
+    const GROQ_KEYS = [
+      process.env.REACT_APP_GROQ_KEY,
+      process.env.REACT_APP_GROQ_KEY_2
+    ].filter(Boolean);
+
+    const tryFetch = async (keyIndex = 0) => {
+      if (keyIndex >= GROQ_KEYS.length) {
+        throw new Error('Service temporarily unavailable. Please try again in a moment.');
+      }
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_KEY}`
+          'Authorization': `Bearer ${GROQ_KEYS[keyIndex]}`
         },
         body: JSON.stringify({
           model: 'llama-3.1-8b-instant',
@@ -76,19 +83,20 @@ Return ONLY a JSON array with exactly these 5 objects, no extra text:
           max_tokens: 4096
         })
       });
-
       const data = await response.json();
-
       if (!data.choices || !data.choices[0]) {
-        throw new Error('API limit reached. Please try again in a moment.');
+        return tryFetch(keyIndex + 1);
       }
+      return data;
+    };
 
+    try {
+      const data = await tryFetch();
       const text = data.choices[0].message.content;
       const match = text.match(/\[[\s\S]*\]/);
       if (!match) throw new Error('Could not parse response. Please try again.');
       const sections = JSON.parse(match[0]);
       setDocs(sections);
-
     } catch (err) {
       setError('⚠️ ' + err.message);
     }
