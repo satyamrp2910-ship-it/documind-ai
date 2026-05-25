@@ -170,22 +170,33 @@ body {
   line-height: 1.8;
   color: #f0eeff;
   white-space: pre-wrap;
-  max-height: 200px;
-  overflow-y: auto;
+  max-height: 120px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 }
 
-.doc-card-body::-webkit-scrollbar {
-  width: 4px;
+.doc-card-body.expanded {
+  max-height: 1000px;
 }
 
-.doc-card-body::-webkit-scrollbar-track {
-  background: transparent;
+.expand-btn {
+  width: 100%;
+  padding: 8px;
+  background: rgba(124,111,247,0.08);
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: #7c6ff7;
+  font-size: 0.75rem;
+  font-family: monospace;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
 }
 
-.doc-card-body::-webkit-scrollbar-thumb {
-  background: #7c6ff7;
-  border-radius: 4px;
+.expand-btn:hover {
+  background: rgba(124,111,247,0.15);
 }
+
 .action-btns {
   display: flex;
   gap: 8px;

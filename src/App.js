@@ -3,6 +3,25 @@ import './App.css';
 
 const LANGUAGES = ['Python', 'JavaScript', 'TypeScript', 'Java', 'Go', 'SQL'];
 
+function DocCard({ title, content }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="doc-card">
+      <div className="doc-card-header">
+        <div className="doc-dot"></div>
+        <div className="doc-card-title">{title.toUpperCase()}</div>
+      </div>
+      <div className={`doc-card-body ${expanded ? 'expanded' : ''}`}>
+        {content}
+      </div>
+      <button className="expand-btn" onClick={() => setExpanded(!expanded)}>
+        {expanded ? '▲ Show Less' : '▼ Show More'}
+      </button>
+    </div>
+  );
+}
+
 function App() {
   const [code, setCode] = useState('');
   const [lang, setLang] = useState('Python');
@@ -141,13 +160,7 @@ Return ONLY a JSON array with exactly these 5 objects, no extra text:
           {error && <div className="error">{error}</div>}
 
           {docs.map((doc, i) => (
-            <div className="doc-card" key={i}>
-              <div className="doc-card-header">
-                <div className="doc-dot"></div>
-                <div className="doc-card-title">{doc.title.toUpperCase()}</div>
-              </div>
-              <div className="doc-card-body">{doc.content}</div>
-            </div>
+            <DocCard key={i} title={doc.title} content={doc.content} />
           ))}
 
           {docs.length > 0 && (
