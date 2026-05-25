@@ -30,9 +30,8 @@ body {
 .main {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px);
 }
-
 .left-panel {
   padding: 1.5rem;
   border-right: 1px solid rgba(255,255,255,0.08);
@@ -170,8 +169,8 @@ body {
   line-height: 1.8;
   color: #f0eeff;
   white-space: pre-wrap;
-  max-height: 150px;
-  overflow-y: scroll;
+  overflow-y: auto;
+  max-height: 180px;
 }
 
 .doc-card-body.expanded {
