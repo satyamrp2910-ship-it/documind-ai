@@ -30,8 +30,11 @@ function App() {
   const [error, setError] = useState('');
 
   const generateDocs = async () => {
-    console.log('KEY:', process.env.REACT_APP_GROQ_KEY);
     if (!code.trim()) { alert('Please paste some code first!'); return; }
+    if (code.length > 3000) {
+      setError('⚠️ Code is too long. Please paste a smaller snippet (under 3000 characters) for best results.');
+      return;
+    }
     setLoading(true);
     setError('');
     setDocs([]);
@@ -75,14 +78,19 @@ Return ONLY a JSON array with exactly these 5 objects, no extra text:
       });
 
       const data = await response.json();
+
+      if (!data.choices || !data.choices[0]) {
+        throw new Error('API limit reached. Please try again in a moment.');
+      }
+
       const text = data.choices[0].message.content;
       const match = text.match(/\[[\s\S]*\]/);
-      if (!match) throw new Error('No valid JSON in response');
+      if (!match) throw new Error('Could not parse response. Please try again.');
       const sections = JSON.parse(match[0]);
       setDocs(sections);
 
     } catch (err) {
-      setError('Something went wrong: ' + err.message);
+      setError('⚠️ ' + err.message);
     }
 
     setLoading(false);
