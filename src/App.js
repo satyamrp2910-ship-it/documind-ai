@@ -38,65 +38,52 @@ function App() {
     setError('');
     setDocs([]);
 
-    const prompt = `You are a technical documentation expert. Analyze this ${lang} code carefully and generate comprehensive documentation.
+    const prompt = `<s>[INST] You are a technical documentation expert. Analyze this ${lang} code and return ONLY a JSON array with exactly 5 objects. No extra text, no markdown, no backticks.
 
 CODE:
 ${code}
 
-Return ONLY a JSON array with exactly these 5 objects, no extra text:
+Return exactly this format:
 [
-  {"title": "Overview", "content": "Explain what this code does, its purpose and main functionality in 3-4 sentences"},
-  {"title": "Functions & Methods", "content": "List every function/method with its name and what it does"},
-  {"title": "Parameters & Returns", "content": "For each function list its parameters, their types, and what it returns"},
-  {"title": "Usage Examples", "content": "Show 2-3 real practical examples of how to use this code"},
-  {"title": "Edge Cases & Errors", "content": "List potential errors, edge cases and how to handle them"}
-]`;
-
-    const GROQ_KEYS = [
-      process.env.REACT_APP_GROQ_KEY,
-      process.env.REACT_APP_GROQ_KEY_2
-    ].filter(Boolean);
-
-    const tryFetch = async (keyIndex = 0) => {
-      if (keyIndex >= GROQ_KEYS.length) {
-        throw new Error('Service temporarily unavailable. Please try again in a moment.');
-      }
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROQ_KEYS[keyIndex]}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a documentation expert. Always respond with valid JSON array only. No markdown. No extra text.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.1,
-          max_tokens: 4096
-        })
-      });
-      const data = await response.json();
-      if (!data.choices || !data.choices[0]) {
-        return tryFetch(keyIndex + 1);
-      }
-      return data;
-    };
+  {"title": "Overview", "content": "Explain what this code does in 3-4 sentences"},
+  {"title": "Functions & Methods", "content": "List every function with its name and what it does"},
+  {"title": "Parameters & Returns", "content": "For each function list parameters, types, and return values"},
+  {"title": "Usage Examples", "content": "Show 2-3 practical examples of how to use this code"},
+  {"title": "Edge Cases & Errors", "content": "List potential errors and edge cases"}
+] [/INST]`;
 
     try {
-      const data = await tryFetch();
-      const text = data.choices[0].message.content;
+      const response = await fetch(
+        'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.REACT_APP_HF_KEY}`
+          },
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+              max_new_tokens: 1500,
+              temperature: 0.1,
+              return_full_text: false
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data || !data[0] || !data[0].generated_text) {
+        throw new Error('Could not generate documentation. Please try again.');
+      }
+
+      const text = data[0].generated_text;
       const match = text.match(/\[[\s\S]*\]/);
       if (!match) throw new Error('Could not parse response. Please try again.');
       const sections = JSON.parse(match[0]);
       setDocs(sections);
+
     } catch (err) {
       setError('⚠️ ' + err.message);
     }
